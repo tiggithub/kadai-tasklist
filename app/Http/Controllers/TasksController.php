@@ -47,11 +47,13 @@ class TasksController extends Controller
     {
         // バリデーション
         $request->validate([
+            'title' => 'required|max:10',   // 追加
             'content' => 'required|max:10',
         ]);
         
         // タスクを作成
         $task = new Task;
+        $task->title = $request->title;    // 追加
         $task->content = $request->content;
         $task->save();
 
