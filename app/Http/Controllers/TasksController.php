@@ -14,23 +14,11 @@ class TasksController extends Controller
         // タスク一覧を取得
         $tasks = Task::all();
 
-        $data = [];
-        if (\Auth::check()) { // 認証済みの場合
-            // 認証済みユーザを取得
-            $user = \Auth::user();
-            // ユーザの投稿の一覧を作成日時の降順で取得
-            $microposts = $user->microposts()->orderBy('created_at', 'desc')->paginate(10);
-
-        $data = [
-                'user' => $user,
-                'microposts' => $microposts,
-            ];
         // タスク一覧ビューでそれを表示
         return view('tasks.index', [
             'tasks' => $tasks,
         ]);
     }
-}
 
       // getでtasks/createにアクセスされた場合の「新規登録画面表示処理」
     public function create()
@@ -59,11 +47,6 @@ class TasksController extends Controller
         $task->status = $request->status;    // 追加
         $task->content = $request->content;
         $task->save();
-        
-                // 認証済みユーザ（閲覧者）の投稿として作成（リクエストされた値をもとに作成）
-        $request->user()->microposts()->create([
-            'content' => $request->content,
-        ]);
 
         // トップページへリダイレクトさせる
         return redirect('/');
@@ -122,11 +105,6 @@ class TasksController extends Controller
         $task = Task::findOrFail($id);
         // タスクを削除
         $task->delete();
-        
-        // 認証済みユーザ（閲覧者）がその投稿の所有者である場合は、投稿を削除
-        if (\Auth::id() === $micropost->user_id) {
-            $micropost->delete();
-        }
 
         // トップページへリダイレクトさせる
         return redirect('/');
