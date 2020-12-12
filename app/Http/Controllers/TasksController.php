@@ -6,6 +6,11 @@ use Illuminate\Http\Request;
 
 use App\Task;    // 追加
 
+use Illuminate\Support\Facades\Auth;
+
+use App\User;
+
+
 class TasksController extends Controller
 {
     // getでtasks/にアクセスされた場合の「一覧表示処理」
@@ -34,18 +39,20 @@ class TasksController extends Controller
    // postでtasks/にアクセスされた場合の「新規登録処理」
     public function store(Request $request)
     {
+        
+        // $request->user_id = Authを入れる;
+        $request->user_id = Auth::id();
         // バリデーション
         $request->validate([
-            'user_id' => 'required|max:255',   // 追加 
             'status' => 'required|max:10',   // 追加
             'content' => 'required|max:255',
         ]);
 
         // タスクを作成
         $task = new Task;
-        $task->user_id = $request->user_id;    // 追加
         $task->status = $request->status;    // 追加
         $task->content = $request->content;
+        $task->user_id = $request->user()->id;
         $task->save();
 
         // トップページへリダイレクトさせる
